@@ -4,22 +4,22 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# データの読み込み
+# read data
 df = np.loadtxt(fname=r"d:\spintec\BTMA60B_3_0.40Hz_0.03V_1004mT_300.0K.dat",
                 dtype="float",
                 delimiter="\t",
                 skiprows=1)
 
-# 最後の行を削除
+# delate first row
 df = df[1:]
 
-# DataFrameに変換して列名をつける
+# convert into DataFrame and name
 df_named = pd.DataFrame(df, columns=["T", "R"])
 
-# Tが-0.2〜0.2の範囲にある行だけを抽出
+# T:-0.2〜0.2(to make it easy)
 df_filtered = df_named[(df_named['T'] > -0.2) & (df_named['T'] < 0.2)]
 
-# 最初の4000行を切り出し(各ループ4000行のデータ)
+#each loop has 4000 data
 df_cut = df_filtered.iloc[:4000]
 
 fig, ax = plt.subplots()
@@ -34,7 +34,7 @@ mid_x = (0 + -0.0124) / 2
 top_y = df_cut["R"].max() 
 ax.annotate('', xy=(0, top_y), xytext=(-0.0124, top_y),
             arrowprops=dict(arrowstyle='<->', color='green'))
-#ax.text(mid_x, top_y + 0.02, f'Bc offset = 0.0124 T',  # 0.02は調整値
+#ax.text(mid_x, top_y + 0.02, f'Bc offset = 0.0124 T',  # 0.02 is arange
         #ha='center', va='bottom', color='green')
 
 # Add a marker or line at T = 0.1536 under the x-axis
@@ -81,7 +81,7 @@ ax.set_title("all R vs T Loops at 300K")
 plt.tight_layout()
 plt.show()
 # %%
-#それぞれのmagnetic propertyを取る
+#extract magnetic properties
 R_AP = df_cut["R"].max()
 R_P = df_cut["R"].min()
 TMR = (R_AP - R_P) / R_P
@@ -97,7 +97,7 @@ selected_indices = []
 
 for idx in sorted_indices:
     T_candidate = T_vals.iloc[idx]
-    # すでに選ばれている T 値と0.05以上離れているか確認
+    # candidate should be far away more than 0.05
     if all(abs(T_candidate - t) >= 0.05 for t in selected_Ts):
         selected_Ts.append(T_candidate)
         selected_indices.append(idx)
@@ -117,7 +117,7 @@ print(f"B_Cplus:{Bc_plus}, B_Cminus:{Bc_minus}")
 print(f"Bc:{Bc}")
 print(f"Offset:{offset}")
 # %%
-#微分したやつを一応プロット
+#you can plot how it looks when it is differenciated
 plt.plot(T_vals, dR_dT)
 plt.title("dR/dT vs T")
 plt.xlabel("T")
